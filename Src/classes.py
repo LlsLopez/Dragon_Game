@@ -1,7 +1,6 @@
 import pygame
 import os
 #imports
-
 # dragon class -------------------------------------------
 class Dragon(pygame.sprite.Sprite):
     def __init__(self,x,y,scale,speed,health):
@@ -164,16 +163,17 @@ class Collectible(pygame.sprite.Sprite):
     def __init__(self,image,code,x,y):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
+        self.code = code
         self.image = pygame.transform.scale(self.image, (
         int(self.image.get_width() * (.2)), int(self.image.get_height()* .2))) # temporarily smaller
         self.rect = self.image.get_rect()
-        self.rect.center(x,y)
-        self.healthEffect # depending on collectible type, may be positive or negative health (or 0)
+        self.rect.center = (x,y)
+        self.healthEffect = 0# depending on collectible type, may be positive or negative health (or 0)
         # code meanings: 1 = damage , 2 = health, ...
         if(code == 1):
-            healthEffect = -20
+            self.healthEffect = -20
         elif(code == 2):
-            healthEffect = +25
+            self.healthEffect = +25
 
     def update(self,backgroundScrollSpeed,player,cGroup,FPS):
         self.rect.x -= backgroundScrollSpeed
@@ -181,5 +181,12 @@ class Collectible(pygame.sprite.Sprite):
             self.kill()
         if (pygame.sprite.spritecollide(player, cGroup, False)):
             player.health += self.healthEffect
-            if(self.code == 1 and player.alive):
+            if(player.health > 100):
+                player.health = 100 # prevent going over max health
+            if(player.health < 100):
+                player.health = 0
+            self.kill()
+            print(self.healthEffect)
+            print(player.health)
+            if(self.code == 1 and player.alive and player.invulTimer <= 0):
                 player.invulTimer = FPS * 3

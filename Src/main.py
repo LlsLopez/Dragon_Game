@@ -23,11 +23,13 @@ backgroundScrollSpeed = 5
 spikeTimer = 2000
 spikeTimerVary = 1500
 lastSpike = pygame.time.get_ticks()
+mainTimer = 0
 
 
 #load images
 fireballImage = pygame.image.load('../Sprites/Dragon/Projectiles/fireball.png').convert_alpha()
 spikeImage = pygame.image.load('../Sprites/Objects/spikeUp.png').convert_alpha()
+healthImage = pygame.image.load('../Sprites/Collectibles/heart.png').convert_alpha()
 
 #player action variables
 moveRight = False
@@ -49,10 +51,16 @@ fireballGroup = pygame.sprite.Group()
 spikeGroup = pygame.sprite.Group()
 player = classes.Dragon(50,200,.65,5,100)
 enemy = classes.Dragon(400,600,.65,5,50)
+collectibleGroup = pygame.sprite.Group()
+
+#delete after
+test = True
+
 
 runGame = True
 while(runGame == True):
     clock.tick(FPS)
+    mainTimer += 1
     #Draw Background with scrolling effect
     screen.blit(background,(backgroundScroll,0))
     backgroundScroll -= backgroundScrollSpeed
@@ -65,6 +73,7 @@ while(runGame == True):
     fireballGroup.update(player,enemy,fireballGroup,spikeGroup,SCREEN_WIDTH)
     fireballGroup.draw(screen)
     spikeGroup.draw(screen)
+    collectibleGroup.draw(screen)
 
     if(player.alive == True):
         if(shoot == True):                      # 0 index = width
@@ -85,6 +94,10 @@ while(runGame == True):
             rand3 = randrange(spikeTimerVary)
             lastSpike = currentTime + rand3
         spikeGroup.update(backgroundScrollSpeed,player,spikeGroup,FPS)
+        if(mainTimer % 500 == 0):
+            newC = classes.Collectible(healthImage, 2, SCREEN_WIDTH, 500)
+            collectibleGroup.add(newC)
+        collectibleGroup.update(backgroundScrollSpeed,player,collectibleGroup,FPS)
 
 #movement section
     for event in pygame.event.get():
