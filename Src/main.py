@@ -24,12 +24,17 @@ spikeTimer = 2000
 spikeTimerVary = 1500
 lastSpike = pygame.time.get_ticks()
 mainTimer = 0
+cannonBallTimer = 0
+nextCannonBall = 300 # shoot first cannon ball 300 frames in
+healthTimer = 0
+nextHealth = 600 # first health 600 frames in
 
 
 #load images
 fireballImage = pygame.image.load('../Sprites/Dragon/Projectiles/fireball.png').convert_alpha()
 spikeImage = pygame.image.load('../Sprites/Objects/spikeUp.png').convert_alpha()
 healthImage = pygame.image.load('../Sprites/Collectibles/heart.png').convert_alpha()
+cannonBallImage = pygame.image.load('../Sprites/Collectibles/cannonball.png').convert_alpha()
 
 #player action variables
 moveRight = False
@@ -94,10 +99,22 @@ while(runGame == True):
             rand3 = randrange(spikeTimerVary)
             lastSpike = currentTime + rand3
         spikeGroup.update(backgroundScrollSpeed,player,spikeGroup,FPS)
-        if(mainTimer % 500 == 0):
-            newC = classes.Collectible(healthImage, 2, SCREEN_WIDTH, 500)
+
+        if(cannonBallTimer == nextCannonBall): # CannonBall Generator : Range #200 -
+            nextCannonBall = randrange(200)
+            cannonBallTimer = 0
+            randX = randrange(400) + 200 # X coordinate
+            newC = classes.Collectible(cannonBallImage,1,SCREEN_WIDTH,randX)
             collectibleGroup.add(newC)
-        collectibleGroup.update(backgroundScrollSpeed,player,collectibleGroup,FPS)
+        cannonBallTimer += 1
+        if(healthTimer == nextHealth):
+            healthTimer = 0
+            nextHealth = randrange(1000) + 1500
+            randX = randrange(400) + 200  # X coordinate
+            newC = classes.Collectible(healthImage, 2, SCREEN_WIDTH, randX)
+            collectibleGroup.add(newC)
+        healthTimer += 1
+        collectibleGroup.update(backgroundScrollSpeed, player, collectibleGroup, FPS)
 
 #movement section
     for event in pygame.event.get():

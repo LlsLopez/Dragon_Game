@@ -164,29 +164,29 @@ class Collectible(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image = image
         self.code = code
-        self.image = pygame.transform.scale(self.image, (
-        int(self.image.get_width() * (.2)), int(self.image.get_height()* .2))) # temporarily smaller
+        if(code == 1): #CannonBall
+            self.image = pygame.transform.scale(self.image, (
+                int(self.image.get_width() * (.1)), int(self.image.get_height() * .1)))  # temporarily smaller
+            self.healthEffect = -20
+        elif(code == 2): # Health
+            self.image = pygame.transform.scale(self.image, (
+                int(self.image.get_width() * (.2)), int(self.image.get_height() * .2)))  # temporarily smaller
+            self.healthEffect = +25
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
-        self.healthEffect = 0# depending on collectible type, may be positive or negative health (or 0)
-        # code meanings: 1 = damage , 2 = health, ...
-        if(code == 1):
-            self.healthEffect = -20
-        elif(code == 2):
-            self.healthEffect = +25
 
     def update(self,backgroundScrollSpeed,player,cGroup,FPS):
         self.rect.x -= backgroundScrollSpeed
         if(self.rect.right <0):
             self.kill()
         if (pygame.sprite.spritecollide(player, cGroup, False)):
-            player.health += self.healthEffect
+            if(self.healthEffect > 0 or player.invulTimer <= 0 ): #if a heal OR damaging attack w/ no invulnerability
+                player.health += self.healthEffect
             if(player.health > 100):
                 player.health = 100 # prevent going over max health
-            if(player.health < 100):
+            if(player.health < 0):
                 player.health = 0
             self.kill()
             print(self.healthEffect)
             print(player.health)
-            if(self.code == 1 and player.alive and player.invulTimer <= 0):
-                player.invulTimer = FPS * 3
+
