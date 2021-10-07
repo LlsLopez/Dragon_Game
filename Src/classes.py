@@ -3,9 +3,10 @@ import os
 #imports
 # dragon class -------------------------------------------
 class Dragon(pygame.sprite.Sprite):
-    def __init__(self,x,y,scale,speed,health):
+    def __init__(self,x,y,scale,speed,health,dragonType):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
+        self.dragonType = dragonType # 0 = player, 1 = normal enemy
         self.speed = speed
         self.shotCD = 0
         self.bodyCD = 200  # time till body dissappears
@@ -96,13 +97,16 @@ class Dragon(pygame.sprite.Sprite):
            #self.update_animation("death number")
 
 
-    def draw(self,enemy,moveLeft,moveRight,ascend,descend,screen,SCREEN_HEIGHT,SCREEN_WIDTH):
+    def draw(self,moveLeft,moveRight,ascend,descend,screen,SCREEN_HEIGHT,SCREEN_WIDTH):
         if(self.alive == True):
-            screen.blit(pygame.transform.flip(self.image,False,False),self.rect)
+            if self.dragonType == 0:
+                screen.blit(pygame.transform.flip(self.image,False,False),self.rect)
+            elif self.dragonType == 1:
+                screen.blit(pygame.transform.flip(self.image,True,False),self.rect)
         else:
             if(self.bodyCD >= 0): # cooldown before body dissappears after death
                 screen.blit(pygame.transform.flip(self.image, False, False), self.rect)
-                enemy.move(moveLeft, moveRight, ascend, descend, 4,SCREEN_HEIGHT,SCREEN_WIDTH)
+                #enemy.move(moveLeft, moveRight, ascend, descend, 4,SCREEN_HEIGHT,SCREEN_WIDTH) ???
                 self.bodyCD -= 1
 # END dragon class -------------------------------------------
 

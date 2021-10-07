@@ -54,8 +54,8 @@ backgroundRect = background.get_rect()
 
 fireballGroup = pygame.sprite.Group()
 spikeGroup = pygame.sprite.Group()
-player = classes.Dragon(50,200,.65,5,100)
-enemy = classes.Dragon(400,600,.65,5,50)
+player = classes.Dragon(50,200,.65,5,100,0)
+enemy = classes.Dragon(400,600,.65,5,50,1)
 collectibleGroup = pygame.sprite.Group()
 
 #delete after
@@ -72,9 +72,9 @@ while(runGame == True):
     if abs(backgroundScroll) > SCREEN_WIDTH:
         backgroundScroll = 0
     player.update()
-    player.draw(enemy,moveLeft,moveRight,ascend,descend,screen,SCREEN_HEIGHT,SCREEN_WIDTH)
+    player.draw(moveLeft,moveRight,ascend,descend,screen,SCREEN_HEIGHT,SCREEN_WIDTH)
     enemy.update()
-    enemy.draw(enemy,moveLeft,moveRight,ascend,descend,screen,SCREEN_HEIGHT,SCREEN_HEIGHT)
+    enemy.draw(moveLeft,moveRight,ascend,descend,screen,SCREEN_HEIGHT,SCREEN_HEIGHT)
     fireballGroup.update(player,enemy,fireballGroup,spikeGroup,SCREEN_WIDTH)
     fireballGroup.draw(screen)
     spikeGroup.draw(screen)
