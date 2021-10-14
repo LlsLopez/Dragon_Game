@@ -22,6 +22,7 @@ FPS = 60
 # temp
 backgroundScroll = 0
 backgroundScrollSpeed = 5
+difficulty = "Normal"
 
 #Timers
 spikeTimer = 2000
@@ -93,10 +94,6 @@ def difficulty_screen():
         hard.to_screen()
         harder.to_screen()
 
-        desTest = "test"
-        description = classes.Button(desTest,white,screen,SCREEN_WIDTH,SCREEN_HEIGHT/3,50,False)
-
-        description.to_screen()
         screenTitle.to_screen()
         mainMenu.to_screen()
 
@@ -106,23 +103,38 @@ def difficulty_screen():
                 run = False # back to main menu, ends loop
         elif easy.button.collidepoint((mouseX,mouseY)):
             easy.hover_button()
+            desTest = "Decreased enemy health, damage, spawns"
+            description = classes.Button(desTest, white, screen, SCREEN_WIDTH / 2, 8 * SCREEN_HEIGHT / 10, 30, False)
+            description.to_screen()
             if click:
                print("easy")
         elif normal.button.collidepoint((mouseX,mouseY)):
             normal.hover_button()
+            desTest = "Normal enemy health, damage, spawns"
+            description = classes.Button(desTest, white, screen, SCREEN_WIDTH / 2, 8 * SCREEN_HEIGHT / 10, 30, False)
+            description.to_screen()
             if click:
                print("normal")
         elif hard.button.collidepoint((mouseX,mouseY)):
             hard.hover_button()
+            desTest = "Increased enemy health, damage, hostile spawns, decreased health spawn"
+            description = classes.Button(desTest, white, screen, SCREEN_WIDTH/2, 8 * SCREEN_HEIGHT / 10, 30, False)
+            description.to_screen()
             if click:
                print("hard")
         elif harder.button.collidepoint((mouseX,mouseY)):
             harder.hover_button()
+            desTest = "Heavily increased enemy health, damage, spawns, decreased health and health spawn"
+            description = classes.Button(desTest, white, screen, SCREEN_WIDTH / 2, 8 * SCREEN_HEIGHT / 10, 30, False)
+            description.to_screen()
             if click:
                print("harder")
         else:
             mainMenu.unhover_button()
             easy.unhover_button()
+            normal.unhover_button()
+            hard.unhover_button()
+            harder.unhover_button()
 
         click = False
         for event in pygame.event.get():
