@@ -136,7 +136,7 @@ class Dragon(pygame.sprite.Sprite):
             self.health = 0
             #self.speed = 0 # no continued movement, dies on spot
             self.alive = False
-            if self.bodyCD == 0:
+            if self.bodyCD == 0 : #dont kill player avatar
                 self.kill()
            #self.update_animation("death number")
 
@@ -153,7 +153,8 @@ class Dragon(pygame.sprite.Sprite):
                 screen.blit(pygame.transform.flip(self.image, False, False), self.rect)
                 #enemy.move(moveLeft, moveRight, ascend, descend, 4,SCREEN_HEIGHT,SCREEN_WIDTH) ???
                 self.bodyCD -= 1
-
+    def reset_positon(self): # resets the players position to start
+        self.rect.center = (50, 200)
 # END dragon class -------------------------------------------
 
 # START Fireshot Class-------------------------------------------
@@ -249,9 +250,10 @@ class Collectible(pygame.sprite.Sprite):
 
 #button Class
 class Button():
-    def __init__(self,text,color,surface,x,y,size,isButton):
+    def __init__(self,text,color,surface,x,y,size,rectColor,hasRect,isButton):
         self.surface = surface
         self.isButton = isButton
+        self.hasRect = hasRect
         self.button = 0 # for collide check in menu
         self.font = pygame.font.Font('../Font/AvQest.ttf',size)
         self.x = x
@@ -262,13 +264,14 @@ class Button():
         self.textO = self.font.render(text,1,color)
         self.textRec = self.textO.get_rect()
         self.textRec = self.textO.get_rect(center = (x,y))
-        self.buttonColor = (255,0,0) # red
+        self.buttonColor = rectColor
 
 
     def to_screen(self):
-        if self.isButton: #ignores if only a text buttonless
+        if self.isButton: #ignores if only a text ; buttonless
             self.button = pygame.Rect(self.textRec.left, self.textRec.top, self.textRec.width, self.textRec.height)
-            pygame.draw.rect(self.surface, self.buttonColor, self.button)
+            if self.hasRect:
+                pygame.draw.rect(self.surface, self.buttonColor, self.button)
         self.surface.blit(self.textO,self.textRec)
 
     def hover_button(self):
@@ -278,3 +281,7 @@ class Button():
     def unhover_button(self): # return to original color
         self.buttonColor = (255,0,0)
         self.textO = self.font.render(self.text, 1, self.textColor)
+
+    def update_text(self,newText):
+            self.text = newText
+            self.textO = self.font.render(self.text, 1, self.textColor)
