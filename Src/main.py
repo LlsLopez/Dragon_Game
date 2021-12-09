@@ -5,7 +5,6 @@ import time
 import os
 from random import randrange
 
-
 import classes
 
 pygame.init()
@@ -29,7 +28,6 @@ spikeImage = pygame.image.load('../Sprites/Objects/spikeUp.png').convert_alpha()
 healthImage = pygame.image.load('../Sprites/Collectibles/heart.png').convert_alpha()
 cannonBallImage = pygame.image.load('../Sprites/Collectibles/cannonball.png').convert_alpha()
 
-
 backgroundColor = (201,97,77)
 background = pygame.image.load('../Sprites/Background/cave2.jpg').convert_alpha()
 background = pygame.transform.scale(background,(SCREEN_WIDTH*2,SCREEN_HEIGHT))
@@ -40,7 +38,6 @@ backgroundRect = background.get_rect()
 
 fireballGroup = pygame.sprite.Group()
 spikeGroup = pygame.sprite.Group()
-player = classes.Dragon(50,200,.65,5,10,0)
 collectibleGroup = pygame.sprite.Group()
 enemyGroup = pygame.sprite.Group()
 
@@ -138,6 +135,34 @@ def difficulty_screen(): # retrieves difficulty settings
 
 ##################################### Run Game
 def game_run(difficulty):
+
+    if (difficulty == 0):
+        print("easy selected")
+        cannonVariableTime = +250
+        healthVariableTime = +800
+        enemyVariableTime = +300
+        player = classes.Dragon(50, 200, .65, 5, 200,200, 0)
+    elif (difficulty == 1):
+        print("normal selected")
+        cannonVariableTime = +180
+        healthVariableTime = +1200
+        enemyVariableTime = + 220
+        player = classes.Dragon(50, 200, .65, 5, 120,120, 0)
+    elif (difficulty == 2):
+        print("hard selected")
+        cannonVariableTime = +110
+        healthVariableTime = +1500
+        enemyVariableTime = + 120
+        player = classes.Dragon(50, 200, .65, 5,100,100,0)
+    elif (difficulty == 3):
+        print("harder selected")
+        cannonVariableTime = +40
+        healthVariableTime = +2000
+        enemyVariableTime = + 50
+        player = classes.Dragon(50, 200, .65, 5,75,75, 0)
+    else:
+        print("error")
+
     # Timers
     spikeTimer = 2000
     spikeTimerVary = 1500
@@ -168,20 +193,9 @@ def game_run(difficulty):
     scoreUI = classes.Button("Score:"+str(score),white,screen,SCREEN_WIDTH/2,scale,scale,red,False,True)
     #determine diff here
 
-
     print("Test")
     print(player.health)
 
-    if (difficulty == 0):
-        print("easy selected")
-    elif (difficulty == 1):
-        print("normal selected")
-    elif (difficulty == 2):
-        print("hard selected")
-    elif (difficulty == 3):
-        print("harder selected")
-    else:
-        print("error")
 
 
     runGame = True
@@ -208,6 +222,7 @@ def game_run(difficulty):
             enemy.update()
             enemy.enemy_ai(fireballGroup,fireballImage)
             enemy.draw(moveLeft, moveRight, ascend, descend, screen, SCREEN_HEIGHT, SCREEN_HEIGHT)
+            score += enemy.killed() # add score for enemy killed
         fireballGroup.update(player,enemyGroup,fireballGroup,spikeGroup,SCREEN_WIDTH)
         fireballGroup.draw(screen)
         spikeGroup.draw(screen)
@@ -234,7 +249,7 @@ def game_run(difficulty):
             spikeGroup.update(backgroundScrollSpeed,player,spikeGroup,FPS)
 
             if(cannonBallTimer == nextCannonBall): # CannonBall Generator : Range #200 -
-                nextCannonBall = randrange(200)
+                nextCannonBall = randrange(100) + cannonVariableTime
                 cannonBallTimer = 0
                 randX = randrange(400) + 200 # X coordinate
                 newC = classes.Collectible(cannonBallImage,1,SCREEN_WIDTH,randX)
@@ -242,7 +257,7 @@ def game_run(difficulty):
             cannonBallTimer += 1
             if(healthTimer == nextHealth): # Health spawn timer
                 healthTimer = 1
-                nextHealth = randrange(1000) + 1500
+                nextHealth = randrange(1000) + healthVariableTime
                 randX = randrange(400) + 200  # X coordinate
                 newC = classes.Collectible(healthImage, 2, SCREEN_WIDTH, randX)
                 collectibleGroup.add(newC)
@@ -252,7 +267,7 @@ def game_run(difficulty):
             #Enemy Spawner
             #NOTE: make game harder, decrease timers ( turn flat numbers into multipliers? multiplier * 100)
             if(enemySpawn <= 0):
-                enemySpawn = randrange(300) + 120
+                enemySpawn = randrange(300) + enemyVariableTime
                 randX = SCREEN_WIDTH - randrange(200) - 40
                 randY = randrange(2) # 0 player, 1 enemy classic
                 print(randY)
@@ -260,10 +275,16 @@ def game_run(difficulty):
                     randY = 0
                 elif randY == 1:
                     randY = SCREEN_HEIGHT
-                enemy = classes.Dragon(randX,randY,.65,5,50,1)
+
+                if difficulty >= randrange(6): #easy never spawns high level
+                    spawnType = 2
+                    healthType = 100
+                else:
+                    spawnType = 1
+                    healthType = 60
+                enemy = classes.Dragon(randX,randY,.65,5,healthType,healthType,spawnType)
                 enemyGroup.add(enemy)
             enemySpawn -= 1
-
 
     #movement section
         for event in pygame.event.get():

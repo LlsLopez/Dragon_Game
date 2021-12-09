@@ -5,21 +5,21 @@ import os
 #imports
 # dragon class -------------------------------------------
 class Dragon(pygame.sprite.Sprite):
-    def __init__(self,x,y,scale,speed,health,dragonType):
+    def __init__(self,x,y,scale,speed,health,maxHealth,dragonType):
         pygame.sprite.Sprite.__init__(self)
         self.alive = True
         self.dragonType = dragonType # 0 = player, 1 = normal enemy
         self.enemyMov = "up"
         self.speed = speed
         self.shotCD = 0
-        if dragonType == 1:
+        if dragonType != 0:
             self.shotCD = 50 # start with a delayed shot if enemy
         self.bodyCD = 200  # time till body dissappears # update in def shoot aswell
         self.health = health
-        self.maxHealth = 300
+        self.maxHealth = maxHealth
         self.damage = 20  # base damage, can be changed with powerups (future)
         self.invulTimer = 0 # time invulnerable
-
+        self.pointWorth = 1000
         self.animations = []
         self.animationIndex = 0
         self.frameIndex = 0
@@ -46,13 +46,23 @@ class Dragon(pygame.sprite.Sprite):
         if (self.shotCD == 0):
             if self.dragonType == 0:
                 self.shotCD = 20
-                fireshot = FireShot(fireballImage,self.rect.centerx + (1 * self.rect.size[0]), self.rect.centery, .2,True)
+
+                fireshot = FireShot(fireballImage,self.rect.centerx + (1 * self.rect.size[0]), self.rect.centery, .2,0)
                 fireballGroup.add(fireshot)
             elif self.dragonType == 1 and self.bodyCD == 200:
                 self.shotCD = 50 + randrange(200)
                 fireballImage = pygame.transform.flip(fireballImage, True, False)
-                fireshot = FireShot(fireballImage, self.rect.centerx - (1 * self.rect.size[0]), self.rect.centery, .2,False)
+                fireshot = FireShot(fireballImage, self.rect.centerx - (1 * self.rect.size[0]), self.rect.centery, .2,1)
                 fireballGroup.add(fireshot)
+            elif self.dragonType == 2 and self.bodyCD == 200:
+                self.shotCD = 50 + randrange(250)
+                fireballImage = pygame.transform.flip(fireballImage, True, False)
+                fireshot = FireShot(fireballImage, self.rect.centerx - (1 * self.rect.size[0]), self.rect.centery, .2,1)
+                fireshot2 = FireShot(fireballImage, self.rect.centerx - (1 * self.rect.size[0]), self.rect.centery, .2,2)
+                fireshot3 = FireShot(fireballImage, self.rect.centerx - (1 * self.rect.size[0]), self.rect.centery, .2,3)
+                fireballGroup.add(fireshot)
+                fireballGroup.add(fireshot2)
+                fireballGroup.add(fireshot3)
 
     def update_animation(self):
         animationCD = 100 # animation cooldown
@@ -137,15 +147,20 @@ class Dragon(pygame.sprite.Sprite):
             #self.speed = 0 # no continued movement, dies on spot
             self.alive = False
             if self.bodyCD == 0 : #dont kill player avatar
+
                 self.kill()
            #self.update_animation("death number")
-
+    def killed(self):
+        if self.bodyCD == 50: # if has died
+            return self.pointWorth
+        else:
+            return 0
 
     def draw(self,moveLeft,moveRight,ascend,descend,screen,SCREEN_HEIGHT,SCREEN_WIDTH):
         if(self.alive == True):
             if self.dragonType == 0:
                 screen.blit(pygame.transform.flip(self.image,False,False),self.rect)
-            elif self.dragonType == 1:
+            elif self.dragonType != 0:
                 screen.blit(pygame.transform.flip(self.image,True,False),self.rect)
         else:
             if(self.bodyCD >= 0): # cooldown before body dissappears after death
@@ -159,38 +174,44 @@ class Dragon(pygame.sprite.Sprite):
 
 # START Fireshot Class-------------------------------------------
 class FireShot(pygame.sprite.Sprite):
-    def __init__(self,fireballImage,x,y,scale,playerShot):
+    def __init__(self,fireballImage,x,y,scale,shotType):
         pygame.sprite.Sprite.__init__(self)
         self.speed = 10
         self.image = fireballImage
         self.image = pygame.transform.scale(self.image,(int(self.image.get_width() * (scale)), int(self.image.get_height() * scale)))
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
-        self.playerShot = playerShot # is it the player's shot?
+        self.shotType = shotType # is it the player's shot?
 
     def update(self,player,enemyGroup,fireballGroup,spikeGroup,SCREEN_WIDTH):
-        if self.playerShot == True: # if player shoot towards right
+        if self.shotType == 0: # if player shoot towards right
             self.rect.x += (self.speed)
-        elif self.playerShot == False:
+        elif self.shotType == 1:
             self.rect.x -= self.speed
+        elif self.shotType == 2:
+            self.rect.x -= self.speed
+            self.rect.y -= self.speed * .2
+        elif self.shotType == 3:
+            self.rect.x -= self.speed
+            self.rect.y += self.speed * .2
         #shot offscreen check (delete from memory)
         if(self.rect.right <0 or self.rect.left > SCREEN_WIDTH):
             self.kill()
 
         #collision check (characters)
-        if pygame.sprite.spritecollide(player,fireballGroup,False) and self.playerShot == False:
+        if pygame.sprite.spritecollide(player,fireballGroup,False) and self.shotType == 1:
             if player.alive and player.invulTimer == 0:
                 self.kill()
-                print("shot hit")
+                player.health -= 20
                 player.invulTimer = 50
         for enemy in enemyGroup:
-            if pygame.sprite.spritecollide(enemy,fireballGroup,False) and self.playerShot == True:
+            if pygame.sprite.spritecollide(enemy,fireballGroup,False) and self.shotType == 0:
                 if enemy.alive:
                     #enemy.health -= player.damage
                     enemy.health -= player.damage
                     print(enemy.health)
                     self.kill()
-        if (pygame.sprite.groupcollide(spikeGroup, fireballGroup, False, False) and self.playerShot == True): #stop on impact of spike if player
+        if (pygame.sprite.groupcollide(spikeGroup, fireballGroup, False, False) and self.shotType == 0): #stop on impact of spike if player
             self.kill()
 # END Fireshot Class-------------------------------------------
 
